@@ -3,6 +3,8 @@ import randomUserAgent from 'random-useragent';
 import { sleep, log, randomInt } from './utils';
 import { push as pushToDb } from './db';
 
+// TODO: do more requests when the server is down
+
 const files = Array.from(Array(10).keys())
     .map((i) => (i+1))
     .map((i) => `${i}.html`);
