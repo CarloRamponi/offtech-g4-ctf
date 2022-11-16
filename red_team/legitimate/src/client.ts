@@ -20,7 +20,7 @@ export default async function client(baseUrl: string): Promise<void> {
 
     // Random delay between 1 and 10 seconds
     function randomDelay(): Promise<void> {
-        const delay = randomInt(1000, 10000);
+        const delay = randomInt(5000, 10000);
         log(`Delaying for ${delay} milliseconds`);
         return sleep(delay);
     }
@@ -28,12 +28,19 @@ export default async function client(baseUrl: string): Promise<void> {
     while(true) {
         const url = randomFile();
         const userAgent = randomUserAgent.getRandom();
-        request(url, userAgent);
-        await randomDelay();
+        const result = await request(url, userAgent);
+
+        // if the request was successful, we wait a fairly long time,
+        // otherwise we wait a short time
+        if(result) {
+            await randomDelay();
+        } else {
+            await sleep(1000);
+        }
     }
 }
 
-async function request(url: string, userAgent: string): Promise<void> {
+async function request(url: string, userAgent: string): Promise<boolean> {
     log(`Requesting ${url}`);
     const start = Date.now();
 
@@ -50,17 +57,21 @@ async function request(url: string, userAgent: string): Promise<void> {
         signal: controller.signal,
     });
 
-    request.then((response) => {
+    try {
+        const response = await request;
         clearTimeout(timeout);
         if(response.status === 200) {
             successfulRequest(start, Date.now());
+            return true;
         } else {
             failedRequest(start, Date.now());
+            return false;
         }
-    }).catch(() => {
+    } catch(e) {
         clearTimeout(timeout);
         failedRequest(start, Date.now());
-    })
+        return false;
+    }
 }
 
 function successfulRequest(start: number, end: number): void {

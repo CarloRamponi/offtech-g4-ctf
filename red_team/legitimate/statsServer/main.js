@@ -22,8 +22,8 @@ function update() {
     $('#successfull_requests').text(succ_req);
     $('#failed_requests').text(fail_req);
     $('#rate_requests').text((fail_req / total_req * 100).toFixed(2) + '%');
-    $('#total_time').text(formatTime(avg_time));
-    $('#avg_duration').text(formatTime(total_time));
+    $('#avg_duration').text(Number.isNaN(avg_time) ? ":)" : formatTime(avg_time));
+    $('#total_time').text(formatTime(total_time));
 
     chart_1(succ_req, fail_req);
     chart_2();
@@ -61,17 +61,19 @@ function chart_1(succ, fail) {
 
 function chart_2() {
 
-    const data = stats.map((stat) => ({
-        ...stat,
-        duration: stat.duration >= 500 ? 0 : stat.duration,
-    }));
+    // const data = stats.map((stat) => ({
+    //     ...stat,
+    //     duration: stat.duration >= 500 ? 0 : stat.duration,
+    // }));
+
+    const data = stats;
 
     if(!c_2) {
         const ctx = document.getElementById('chart_2').getContext('2d');
         c_2 = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: stats.map((stat) => stat.ts),
+                labels: stats.map((stat) => formatTime(relativeTime(stat.ts))),
                 datasets: [
                     {
                         label: 'Request duration',
@@ -105,7 +107,7 @@ function chart_2() {
             }
         });
     } else {
-        c_2.data.labels = data.map((stat) => stat.ts);
+        c_2.data.labels = data.map((stat) => formatTime(relativeTime(stat.ts)));
         c_2.data.datasets[0].data = data.map((stat) => stat.duration);
         c_2.data.datasets[0].pointBackgroundColor = (ctx) => data[ctx.dataIndex]?.status === "OK" ? 'red' : 'green';
         c_2.data.datasets[1].data = new Array(data.length).fill(500);
@@ -121,7 +123,7 @@ function formatTime(millis) {
     const hours = Math.floor(millis / 3600000);
     const minutes = Math.floor((millis % 3600000) / 60000);
     const seconds = Math.floor(((millis % 360000) % 60000) / 1000);
-    const milliseconds = Math.floor(((millis % 360000) % 60000) % 1000);
+    // const milliseconds = Math.floor(((millis % 360000) % 60000) % 1000);
 
     let ret = "";
 
@@ -137,9 +139,9 @@ function formatTime(millis) {
         ret += seconds + "s ";
     }
 
-    if (milliseconds > 0) {
-        ret += milliseconds + "ms";
-    }
+    // if (milliseconds > 0) {
+    //     ret += milliseconds + "ms";
+    // }
 
     return ret;
 }

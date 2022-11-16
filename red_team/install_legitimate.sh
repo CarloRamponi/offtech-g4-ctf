@@ -44,9 +44,5 @@ ssh offtech "tar -xzvf legitimate.tar.gz > /dev/null && rm legitimate.tar.gz"
 echo "Removing possible old data"
 ssh offtech "rm legitimate/db.json"
 
-echo "Compiling the legitimate software on $LEGITIMATE"
-
-ssh -J offtech $USER@$LEGITIMATE.$EXPERIMENT.$PROJECT "cd legitimate && npm run build"
-
 echo "Done installing legitimate software on $LEGITIMATE"
 echo "Start it with 'cd legitimate && npm start'"
