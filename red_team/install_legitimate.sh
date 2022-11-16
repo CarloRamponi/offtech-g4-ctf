@@ -3,30 +3,50 @@
 # exit on error
 set -e
 
-EXPERIMENT="g4ctf-resilient"
-PROJECT="g4ctf"
+source config.sh
 
-# If the host is passed as an argument, use it
-if [ -n "$1" ]; then
-    HOST=$1
-else
-    # Otherwise, select a random host among client1, client2, client3
-    HOST="client$(shuf -i 1-3 -n 1)"
-fi
+echo "Installing legitimate software on $LEGITIMATE"
 
+echo "Downloading nodejs on the users host"
+ssh offtech "wget https://deb.nodesource.com/node_16.x/pool/main/n/nodejs/nodejs_16.0.0-1nodesource1_amd64.deb -o nodejs.deb"
 
-echo "Installing legitimate software on $HOST"
+echo "Installing nodejs on $LEGITIMATE"
 
-ssh -J offtech $HOST.$EXPERIMENT.$PROJECT "curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - && sudo apt-get install -y nodejs"
+ssh -J offtech $USER@$LEGITIMATE.$EXPERIMENT.$PROJECT "sudo dpkg -i nodejs.deb"
 
-# Temporary remove node_modules
-mv legitimate/node_modules /tmp/node_modules
+echo "Downloading dependencies locally"
 
-scp -J offtech -R ./legitimate $HOST.$EXPERIMENT.$PROJECT:~
+npm --prefix ./legitimate install
 
-# Restore node_modules
-mv /tmp/node_modules legitimate/node_modules
+# echo "Compiling the legitimate software locally"
 
-ssh -J offtech $HOST.$EXPERIMENT.$PROJECT "cd legitimate && npm install"
+# npm --prefix ./legitimate run build
 
-echo "Done installing legitimate software on $HOST"
+echo "Packing the legitimate software"
+
+tar -czvf legitimate.tar.gz legitimate > /dev/null
+
+echo "Copying the legitimate software to the users host"
+
+scp ./legitimate.tar.gz offtech:~
+
+echo "Removing the local copy of the legitimate software"
+
+rm legitimate.tar.gz
+
+echo "Removing possibly existing legitimate software on $LEGITIMATE"
+ssh offtech "rm -rf legitimate"
+
+echo "Extracting the legitimate software on the users host"
+
+ssh offtech "tar -xzvf legitimate.tar.gz > /dev/null && rm legitimate.tar.gz"
+
+echo "Removing possible old data"
+ssh offtech "rm legitimate/db.json"
+
+echo "Compiling the legitimate software on $LEGITIMATE"
+
+ssh -J offtech $USER@$LEGITIMATE.$EXPERIMENT.$PROJECT "cd legitimate && npm run build"
+
+echo "Done installing legitimate software on $LEGITIMATE"
+echo "Start it with 'cd legitimate && npm start'"

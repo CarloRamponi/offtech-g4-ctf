@@ -76,7 +76,7 @@ function chart_2() {
                     {
                         label: 'Request duration',
                         data: data.map((stat) => stat.duration),
-                        pointBackgroundColor: (ctx) => data[ctx.dataIndex].status === "OK" ? 'red' : 'green',
+                        pointBackgroundColor: (ctx) => data[ctx.dataIndex]?.status === "OK" ? 'red' : 'green',
                         lineBackgroundColor: 'transparent',
                         borderColor: 'transparent',
                     },
@@ -107,6 +107,8 @@ function chart_2() {
     } else {
         c_2.data.labels = data.map((stat) => stat.ts);
         c_2.data.datasets[0].data = data.map((stat) => stat.duration);
+        c_2.data.datasets[0].pointBackgroundColor = (ctx) => data[ctx.dataIndex]?.status === "OK" ? 'red' : 'green';
+        c_2.data.datasets[1].data = new Array(data.length).fill(500);
         c_2.update();
     }
 }
