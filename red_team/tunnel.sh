@@ -5,6 +5,6 @@ source config.sh
 LOCAL_PORT=3000
 REMOTE_PORT=3000
 
-echo "Visit http://localhost:3000"
+echo "Visit http://localhost:$LOCAL_PORT"
 
-ssh -N -L 3000:$LEGITIMATE.$EXPERIMENT.$PROJECT:3000 offtech
+ssh -N -L $LOCAL_PORT:$LEGITIMATE.$EXPERIMENT.$PROJECT:$REMOTE_PORT offtech

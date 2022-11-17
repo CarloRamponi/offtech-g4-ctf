@@ -5,14 +5,15 @@ set -e
 
 source config.sh
 
-echo "Installing legitimate software on $LEGITIMATE"
+echo "Installing legitimate software..."
 
 echo "Downloading nodejs on the users host"
-ssh offtech "wget https://deb.nodesource.com/node_16.x/pool/main/n/nodejs/nodejs_16.0.0-1nodesource1_amd64.deb -o nodejs.deb"
+ssh offtech "wget https://deb.nodesource.com/node_16.x/pool/main/n/nodejs/nodejs_16.0.0-1nodesource1_amd64.deb -O nodejs.deb"
 
-echo "Installing nodejs on $LEGITIMATE"
-
-ssh -J offtech $USER@$LEGITIMATE.$EXPERIMENT.$PROJECT "sudo dpkg -i nodejs.deb"
+for HOST in $HOSTS; do
+    echo "Installing nodejs on $HOST"
+    ssh -J offtech $USER@$HOST.$EXPERIMENT.$PROJECT "sudo dpkg -i nodejs.deb"
+done
 
 echo "Downloading dependencies locally"
 
@@ -34,7 +35,7 @@ echo "Removing the local copy of the legitimate software"
 
 rm legitimate.tar.gz
 
-echo "Removing possibly existing legitimate software on $LEGITIMATE"
+echo "Removing possibly existing legitimate software on users host"
 ssh offtech "rm -rf legitimate"
 
 echo "Extracting the legitimate software on the users host"

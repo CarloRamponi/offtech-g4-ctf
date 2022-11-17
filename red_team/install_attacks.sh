@@ -33,7 +33,7 @@ ssh offtech "if [ -d 'bundle' ]; then rm -rf bundle; fi; mkdir bundle && cd bund
 # ssh -J offtech $USER@$COMPILING_HOST.$EXPERIMENT.$PROJECT "cd Python-3.9.7 && ./configure --enable-optimizations && make -j 8"
 
 # Install the compiled python3.9
-for HOST in $ATTACKERS; do
-    # ssh -J offtech $USER@$HOST.$EXPERIMENT.$PROJECT "cd Python-3.9.7 && sudo make altinstall"
+for HOST in $HOSTS; do
+    ssh -J offtech $USER@$HOST.$EXPERIMENT.$PROJECT "if ! [ -f '/usr/local/bin/python3.9' ]; then cd Python-3.9.7 && sudo make altinstall; fi"
     ssh -J offtech $USER@$HOST.$EXPERIMENT.$PROJECT "for b in \`ls bundle\`; do pip3.9 install --force-reinstall --ignore-installed --upgrade --no-index --no-deps bundle/\$b; done"
 done

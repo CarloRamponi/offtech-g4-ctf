@@ -1,5 +1,4 @@
 import axios from 'axios';
-import randomUserAgent from 'random-useragent';
 import { sleep, log, randomInt } from './utils';
 import { push as pushToDb } from './db';
 
@@ -27,7 +26,7 @@ export default async function client(baseUrl: string): Promise<void> {
 
     while(true) {
         const url = randomFile();
-        const userAgent = randomUserAgent.getRandom();
+        const userAgent = "AppleCoreMedia/1.0.0.12B466 (Apple TV; U; CPU OS 8_1_3 like Mac OS X; en_us)";
         const result = await request(url, userAgent);
 
         // if the request was successful, we wait a fairly long time,
