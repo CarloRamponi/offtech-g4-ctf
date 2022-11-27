@@ -1,0 +1,11 @@
+{
+    "server_url": "http://10.1.5.2",
+    "mock_server": {
+        "enabled": true,
+        "port": 3001
+    },
+    "stats": {
+        "enabled": true,
+        "port": 3000
+    }
+}
