@@ -1,8 +1,8 @@
 EPATH="."
 echo Installing the exercise
 sudo apt-get update 
-debconf-set-selections <<< 'mysql-server-5.7 mysql-server/root_password password rootmysql'
-debconf-set-selections <<< 'mysql-server-5.7 mysql-server/root_password_again password rootmysql'
+debconf-set-selections <<< 'mysql-server-8.0 mysql-server/root_password password rootmysql'
+debconf-set-selections <<< 'mysql-server-8.0 mysql-server/root_password_again password rootmysql'
 sudo apt-get install lamp-server^ -y
 sudo cp $EPATH/*.php /var/www/html
 sudo rm /var/www/html/index.html
