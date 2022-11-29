@@ -23,14 +23,25 @@ if (!$mysqli)
 {
    die('Could not connect: ' . $mysqli->error());
 }
+
 $url="process.php?user=$user&pass=$pass&drop=balance";
+
 if ($choice == 'register')
 {
    $query = "insert into users (user,pass) values ('$user', '$pass')";
    $result = $mysqli->query($query);
    die('<script type="text/javascript">window.location.href="' . $url . '"; </script>');
 }
-else if ($choice == 'balance')
+
+// The remaining three actions require user authentication
+$query = "select * from users where user='$user' and pass='$pass'";
+$result = $mysqli->query($query);
+if (mysqli_num_rows($result)!=1)
+{
+  die('User authentication failed!');
+}
+
+if ($choice == 'balance')
 {
    $query = "select * from transfers where user='$user'";
    $result = $mysqli->query($query);
