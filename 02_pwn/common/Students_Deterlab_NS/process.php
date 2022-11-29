@@ -28,9 +28,14 @@ $url="process.php?user=$user&pass=$pass&drop=balance";
 
 if ($choice == 'register')
 {
-   $query = "insert into users (user,pass) values ('$user', '$pass')";
-   $result = $mysqli->query($query);
-   die('<script type="text/javascript">window.location.href="' . $url . '"; </script>');
+  if (strlen($user) < 8 || strlen($user) > 20 || strlen($pass) < 10 || strlen($pass) > 32)
+  {
+    die('Username and/or password are not of allowed length!');
+  }
+
+  $query = "insert into users (user,pass) values ('$user', '$pass')";
+  $result = $mysqli->query($query);
+  die('<script type="text/javascript">window.location.href="' . $url . '"; </script>');
 }
 
 // The remaining three actions require user authentication
