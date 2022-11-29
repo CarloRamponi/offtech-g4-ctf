@@ -32,15 +32,20 @@ if ($choice == 'register')
   {
     die('Username and/or password are not of allowed length!');
   }
+    
+  $prep_stmt = $mysqli->prepare("insert into users (user,pass) values (?, ?)");
+  $prep_stmt->bind_param("ss", $user, $pass);
+  $prep_stmt->execute();
 
-  $query = "insert into users (user,pass) values ('$user', '$pass')";
-  $result = $mysqli->query($query);
   die('<script type="text/javascript">window.location.href="' . $url . '"; </script>');
 }
 
 // The remaining three actions require user authentication
-$query = "select * from users where user='$user' and pass='$pass'";
-$result = $mysqli->query($query);
+$prep_stmt = $mysqli->prepare("select * from users where user=? and pass=?");
+$prep_stmt->bind_param("ss", $user, $pass);
+$prep_stmt->execute();
+$result = $prep_stmt->get_result();
+
 if (mysqli_num_rows($result)!=1)
 {
   die('User authentication failed!');
@@ -48,22 +53,27 @@ if (mysqli_num_rows($result)!=1)
 
 if ($choice == 'balance')
 {
-   $query = "select * from transfers where user='$user'";
-   $result = $mysqli->query($query);
-   $sum = 0;
-   print "<H1>Balance and transfer history for $user</H1><P>";
-   print "<table border=1><tr><th>Action</th><th>Amount</th></tr>";
-   while ($row = $result->fetch_array())
-   {
-      $amount = $row['amount'];
-      if ($amount < 0)
-      {
-        $action = "Withdrawal";
-       }
-     else
-      {
-        $action = "Deposit";
+  $prep_stmt = $mysqli->prepare("select * from transfers where user=?");
+  $prep_stmt->bind_param("s", $user);
+  $prep_stmt->execute();
+  $result = $prep_stmt->get_result();
+
+  $sum = 0;
+
+  print "<H1>Balance and transfer history for $user</H1><P>";
+  print "<table border=1><tr><th>Action</th><th>Amount</th></tr>";
+
+  while ($row = $result->fetch_array())
+  {
+    $amount = $row['amount'];
+    if ($amount < 0)
+    {
+      $action = "Withdrawal";
       }
+    else
+    {
+      $action = "Deposit";
+    }
       print "<tr><td>" . $action . "</td><td>" . $amount . "</td></tr>";
       $sum += $amount;
     }
@@ -79,21 +89,28 @@ else
 
   if ($choice == 'deposit')
   {
-    $query = "insert into transfers (user,amount) values ('$user', '$amount')";
-    $result = $mysqli->query($query);
+    $prep_stmt = $mysqli->prepare("insert into transfers (user,amount) values (?, ?)");
+    $prep_stmt->bind_param("si", $user, $amount);
+    $prep_stmt->execute();    
+
     die('<script type="text/javascript">window.location.href="' . $url . '"; </script>');
   }
   else
   {
-    $query = "select sum(amount) from transfers where user='$user'";
-    $balance = $mysqli->query($query)->fetch_row()[0];
+    $prep_stmt = $mysqli->prepare("select sum(amount) from transfers where user=?");
+    $prep_stmt->bind_param("s", $user);
+    $prep_stmt->execute();     
+    $balance = $prep_stmt->get_result()->fetch_row()[0];
+
     if(is_null($balance) || $balance < $amount)
     {
       die('Insufficient balance!');
     }    
 
-    $query = "insert into transfers (user,amount) values ('$user', -'$amount')";
-    $result = $mysqli->query($query);
+    $prep_stmt = $mysqli->prepare("insert into transfers (user,amount) values (?, ?)");
+    $prep_stmt->bind_param("si", $user, "-$amount");
+    $prep_stmt->execute(); 
+
     die('<script type="text/javascript">window.location.href="' . $url . '"; </script>');
   }
 }
