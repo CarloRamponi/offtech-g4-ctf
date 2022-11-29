@@ -85,6 +85,13 @@ else
   }
   else
   {
+    $query = "select sum(amount) from transfers where user='$user'";
+    $balance = $mysqli->query($query)->fetch_row()[0];
+    if(is_null($balance) || $balance < $amount)
+    {
+      die('Insufficient balance!');
+    }    
+
     $query = "insert into transfers (user,amount) values ('$user', -'$amount')";
     $result = $mysqli->query($query);
     die('<script type="text/javascript">window.location.href="' . $url . '"; </script>');
