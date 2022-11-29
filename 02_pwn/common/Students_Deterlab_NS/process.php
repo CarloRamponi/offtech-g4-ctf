@@ -11,7 +11,7 @@ $pass = $_GET["pass"];
 $choice = $_GET["drop"];
 $amount = $_GET["amount"];
 
-$mysqli = new mysqli('localhost', 'root', 'rootmysql', 'ctf2');
+$mysqli = new mysqli('localhost', 'root', '26x0vVe71B8qY0jbMKDz1mc7UnAYhXkX', 'ctf2');
 if (!$mysqli) 
 {
    die('Could not connect: ' . $mysqli->error());
