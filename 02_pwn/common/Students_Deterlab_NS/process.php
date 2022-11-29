@@ -28,7 +28,7 @@ $url="process.php?user=$user&pass=$pass&drop=balance";
 
 if ($choice == 'register')
 {
-  if (strlen($user) < 8 || strlen($user) > 20 || strlen($pass) < 10 || strlen($pass) > 32)
+  if (strlen($user) < 4 || strlen($user) > 20 || strlen($pass) < 6 || strlen($pass) > 32)
   {
     die('Username and/or password are not of allowed length!');
   }
