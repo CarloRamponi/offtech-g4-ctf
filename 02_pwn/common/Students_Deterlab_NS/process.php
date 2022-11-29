@@ -6,10 +6,17 @@
 $myFile = "/tmp/request.log";
 $fh = fopen($myFile, 'a');
 
-$user = $_GET["user"];
-$pass = $_GET["pass"];
-$choice = $_GET["drop"];
+// Only allow alphanumeric characters for both the username and the password
+$user = preg_replace("/[^a-zA-Z0-9]/", '', $_GET["user"]);
+$pass = preg_replace("/[^a-zA-Z0-9]/", '',$_GET["pass"]);
 $amount = $_GET["amount"];
+$choice = $_GET["drop"];
+
+$valid_actions = array('register', 'balance', 'deposit', 'withdraw');
+if (!in_array($choice, $valid_actions))
+{
+  die('Invalid action!');
+}
 
 $mysqli = new mysqli('localhost', 'root', '26x0vVe71B8qY0jbMKDz1mc7UnAYhXkX', 'ctf2');
 if (!$mysqli) 
@@ -47,18 +54,27 @@ else if ($choice == 'balance')
     print "<tr><td>Total</td><td>" . $sum . "</td></tr></table>";
     print "Back to <A HREF='index.php'>home</A>";		    
 }
-else if ($choice == 'deposit')
+else 
 {
-  $query = "insert into transfers (user,amount) values ('$user', '$amount')";
-  $result = $mysqli->query($query);
-  die('<script type="text/javascript">window.location.href="' . $url . '"; </script>');
+  // The remaining two operations use the $amount variable
+  if(!is_numeric($amount) || $amount < 1) {
+    die('Invalid value provided as amount!');
+  }
+
+  if ($choice == 'deposit')
+  {
+    $query = "insert into transfers (user,amount) values ('$user', '$amount')";
+    $result = $mysqli->query($query);
+    die('<script type="text/javascript">window.location.href="' . $url . '"; </script>');
+  }
+  else
+  {
+    $query = "insert into transfers (user,amount) values ('$user', -'$amount')";
+    $result = $mysqli->query($query);
+    die('<script type="text/javascript">window.location.href="' . $url . '"; </script>');
+  }
 }
-else
-{
-  $query = "insert into transfers (user,amount) values ('$user', -'$amount')";
-  $result = $mysqli->query($query);
-  die('<script type="text/javascript">window.location.href="' . $url . '"; </script>');
-}
+
 //Log data for scoring
 $query = "select * from transfers";
 $result = $mysqli->query($query);
