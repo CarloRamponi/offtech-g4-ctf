@@ -115,7 +115,7 @@ fwrite($fh, "BEGIN\n");
 fwrite($fh, "TRANSFERS\n");
 while ($row = $result->fetch_array())
 {
-    fwrite($fh, $row['user'] . " " . $row['amount'] . "\n");
+    fwrite($fh, $row['user'] . " " . $row['amount'] . " " . $row['timestamp'] . "\n");
 }
 $query = "select * from users";
 $result = $mysqli->query($query);
