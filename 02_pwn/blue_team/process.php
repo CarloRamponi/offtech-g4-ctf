@@ -17,6 +17,11 @@ if (!in_array($choice, $valid_actions))
   die('Invalid action!');
 }
 
+if (empty($user) || empty($pass))
+{
+  die('The username and password fields must be filled in!');
+}
+
 $mysqli = new mysqli('localhost', 'application', '26x0vVe71B8qY0jbMKDz1mc7UnAYhXkX', 'ctf2');
 if (!$mysqli) 
 {
@@ -29,9 +34,9 @@ if ($choice == 'register')
 {
   if (strlen($user) < 4 || strlen($user) > 20 || strlen($pass) < 6 || strlen($pass) > 50)
   {
-    die('Username and/or password are not of allowed length!');
+    die('Username (min. 4 and max. 20 characters) and/or password (min. 6 and max. 50 characters) length is out of the allowed bounds!');
   }
-    
+
   $hashed_password = password_hash($pass, PASSWORD_DEFAULT);
   $prep_stmt = $mysqli->prepare("insert into users (user,pass) values (?, ?)");
   $prep_stmt->bind_param("ss", $user, $hashed_password);
