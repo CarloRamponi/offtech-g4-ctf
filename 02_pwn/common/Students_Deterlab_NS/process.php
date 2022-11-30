@@ -8,7 +8,7 @@ $fh = fopen($myFile, 'a');
 
 // Only allow alphanumeric characters for both the username and the password
 $user = preg_replace("/[^a-zA-Z0-9]/", '', $_GET["user"]);
-$pass = preg_replace("/[^a-zA-Z0-9]/", '',$_GET["pass"]);
+$pass = $_GET["pass"];
 $choice = $_GET["drop"];
 
 $valid_actions = array('register', 'balance', 'deposit', 'withdraw');
@@ -27,25 +27,26 @@ $url="process.php?user=$user&pass=$pass&drop=balance";
 
 if ($choice == 'register')
 {
-  if (strlen($user) < 4 || strlen($user) > 20 || strlen($pass) < 6 || strlen($pass) > 32)
+  if (strlen($user) < 4 || strlen($user) > 20 || strlen($pass) < 6 || strlen($pass) > 50)
   {
     die('Username and/or password are not of allowed length!');
   }
     
+  $hashed_password = password_hash($pass, PASSWORD_DEFAULT);
   $prep_stmt = $mysqli->prepare("insert into users (user,pass) values (?, ?)");
-  $prep_stmt->bind_param("ss", $user, $pass);
-  $prep_stmt->execute();
+  $prep_stmt->bind_param("ss", $user, $hashed_password);
+  $prep_stmt->execute() or die('Username already taken!');
 
   die('<script type="text/javascript">window.location.href="' . $url . '"; </script>');
 }
 
 // The remaining three actions require user authentication
-$prep_stmt = $mysqli->prepare("select * from users where user=? and pass=?");
-$prep_stmt->bind_param("ss", $user, $pass);
+$prep_stmt = $mysqli->prepare("select pass from users where user=?");
+$prep_stmt->bind_param("s", $user);
 $prep_stmt->execute();
-$result = $prep_stmt->get_result();
+$hashed_password = $prep_stmt->get_result()->fetch_row()[0];
 
-if (mysqli_num_rows($result)!=1)
+if (!password_verify($pass, $hashed_password))
 {
   die('User authentication failed!');
 }

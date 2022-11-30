@@ -1,5 +1,8 @@
 USE ctf2;
 
+-- Use BIGINT so that more transactions can be stored on the server
+ALTER TABLE users MODIFY pass CHAR(255) NOT NULL;
+
 -- Add a timestamp for each transaction
 ALTER TABLE transfers ADD COLUMN timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
@@ -43,7 +46,7 @@ FOR EACH ROW
 
 
 -- Initalize a table for maintaining balances, then update all weak password for current users
-CREATE PROCEDURE initBalancesAndUpdatePasswords ()
+CREATE PROCEDURE initBalances ()
 BEGIN
 	DECLARE finished INTEGER DEFAULT 0;
     
@@ -69,14 +72,10 @@ BEGIN
 		-- initialize a balance entry for all users
         SELECT SUM(amount) from transfers WHERE user=userName INTO @balance;
 		INSERT INTO balances (user, balance) VALUES (userName, @balance);
-
-        -- assign a secure password for all existing users
-        SELECT MD5(RAND()) INTO @newPassword;
-        UPDATE users SET pass=@newPassword WHERE user=userName;
 	END LOOP initializeBalances;
 	CLOSE curUsers;
 END; $$
 
 DELIMITER ;
 
-CALL initBalancesAndUpdatePasswords();
+CALL initBalances();
