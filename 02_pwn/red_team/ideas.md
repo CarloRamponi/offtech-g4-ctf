@@ -49,3 +49,15 @@ The problem is that our requests are rate limited to an average of 1 request per
 Out of curiosity, I tried anyway.
 
 The result is effectively a denial of service, since the database is not able to insert any more transactions.
+
+### Fuzzing
+
+Since all the above vulnerabilities will probably be patched, possibly with a total rewrite of the application, we can try to fuzz the **new** application to find other vulnerabilities.
+
+To do that, we could implement a fuzzer, or use an existing one, but since the number of requests is limited, we need to fuzz in a smart way.
+
+For this we'll have to do some recon, and find out how the application works and which technologies it uses.
+
+After that, we can use [burp suite](https://portswigger.net/burp) to fuzz the application by trying all edge cases and using some technology specific special characters.
+
+In burp suite, we can set request throttling to 1 request per second, so we can fuzz the application without being rate limited.
