@@ -9,6 +9,16 @@ ALTER TABLE transfers MODIFY id BIGINT NOT NULL auto_increment;
 -- Create a balances table for easier maintenance of the balance sums
 CREATE TABLE balances (user CHAR(20) NOT NULL, balance INT DEFAULT 0, PRIMARY KEY (user)) ENGINE=MyISAM;
 
+-- create a user for the application with limited permissions
+CREATE USER IF NOT EXISTS 'application'@'localhost' IDENTIFIED BY '26x0vVe71B8qY0jbMKDz1mc7UnAYhXkX';
+		
+GRANT SELECT, INSERT ON ctf2.users TO 'application'@'localhost';
+GRANT SELECT, INSERT ON ctf2.transfers TO 'application'@'localhost';
+GRANT SELECT ON ctf2.balances TO 'application'@'localhost';
+
+FLUSH PRIVILEGES;
+
+
 
 DELIMITER $$
 

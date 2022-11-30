@@ -18,7 +18,7 @@ if (!in_array($choice, $valid_actions))
   die('Invalid action!');
 }
 
-$mysqli = new mysqli('localhost', 'root', '26x0vVe71B8qY0jbMKDz1mc7UnAYhXkX', 'ctf2');
+$mysqli = new mysqli('localhost', 'application', '26x0vVe71B8qY0jbMKDz1mc7UnAYhXkX', 'ctf2');
 if (!$mysqli) 
 {
    die('Could not connect: ' . $mysqli->error());
