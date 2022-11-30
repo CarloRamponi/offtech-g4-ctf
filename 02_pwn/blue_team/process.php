@@ -58,12 +58,19 @@ if (!password_verify($pass, $hashed_password))
 
 if ($choice == 'balance')
 {
-  $prep_stmt = $mysqli->prepare("select * from transfers where user=?");
-  $prep_stmt->bind_param("s", $user);
+  $page = $_GET["page"];  
+  if(empty($page) || !is_numeric($page) || $page < 1) 
+  {
+    $page=1;
+  }
+
+  $no_of_records_per_page = 20;
+  $offset = ($page-1) * $no_of_records_per_page;
+
+  $prep_stmt = $mysqli->prepare("select * from transfers where user=? limit ?, ?");
+  $prep_stmt->bind_param("sii", $user, $offset, $no_of_records_per_page);
   $prep_stmt->execute();
   $result = $prep_stmt->get_result();
-
-  $sum = 0;
 
   print "<H1>Balance and transfer history for $user</H1><P>";
   print "<table border=1><tr><th>Action</th><th>Amount</th></tr>";
@@ -74,16 +81,34 @@ if ($choice == 'balance')
     if ($amount < 0)
     {
       $action = "Withdrawal";
-      }
+    }
     else
     {
       $action = "Deposit";
     }
-      print "<tr><td>" . $action . "</td><td>" . $amount . "</td></tr>";
-      $sum += $amount;
-    }
-    print "<tr><td>Total</td><td>" . $sum . "</td></tr></table>";
-    print "Back to <A HREF='index.php'>home</A>";		    
+      print "<tr><td>" . $action . "</td><td>" . $amount . "</td></tr>";      
+  }  
+
+  $prep_stmt = $mysqli->prepare("select balance from balances where user=?");
+  $prep_stmt->bind_param("s", $user);
+  $prep_stmt->execute();
+  $sum = $prep_stmt->get_result()->fetch_row()[0];
+
+  print "<tr><td>Total</td><td>" . $sum . "</td></tr></table>";
+    
+  if($page != 1) 
+  {
+    $previous_page = $page - 1;
+    print "<A HREF='$url&page=$previous_page'>Previous page</A>";
+  }
+
+  if (mysqli_num_rows($result) == $no_of_records_per_page)
+  {
+    $next_page = $page + 1;
+    print "  <A HREF='$url&page=$next_page'>Next page</A>";
+  }
+  
+  print "</br>Back to <A HREF='index.php'>home</A>";		    
 }
 else 
 {
