@@ -9,7 +9,6 @@ $fh = fopen($myFile, 'a');
 // Only allow alphanumeric characters for both the username and the password
 $user = preg_replace("/[^a-zA-Z0-9]/", '', $_GET["user"]);
 $pass = preg_replace("/[^a-zA-Z0-9]/", '',$_GET["pass"]);
-$amount = $_GET["amount"];
 $choice = $_GET["drop"];
 
 $valid_actions = array('register', 'balance', 'deposit', 'withdraw');
@@ -83,6 +82,8 @@ if ($choice == 'balance')
 else 
 {
   // The remaining two operations use the $amount variable
+  $amount = $_GET["amount"];
+
   if(!is_numeric($amount) || $amount < 1) {
     die('Invalid value provided as amount!');
   }
@@ -97,19 +98,10 @@ else
   }
   else
   {
-    $prep_stmt = $mysqli->prepare("select sum(amount) from transfers where user=?");
-    $prep_stmt->bind_param("s", $user);
-    $prep_stmt->execute();     
-    $balance = $prep_stmt->get_result()->fetch_row()[0];
-
-    if(is_null($balance) || $balance < $amount)
-    {
-      die('Insufficient balance!');
-    }    
-
+    $amount = -1 * $amount;
     $prep_stmt = $mysqli->prepare("insert into transfers (user,amount) values (?, ?)");
-    $prep_stmt->bind_param("si", $user, "-$amount");
-    $prep_stmt->execute(); 
+    $prep_stmt->bind_param("si", $user, $amount);
+    $prep_stmt->execute() or die('Insufficient balance!'); 
 
     die('<script type="text/javascript">window.location.href="' . $url . '"; </script>');
   }
