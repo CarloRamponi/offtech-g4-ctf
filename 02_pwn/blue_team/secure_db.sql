@@ -19,6 +19,9 @@ GRANT SELECT, INSERT ON ctf2.users TO 'application'@'localhost';
 GRANT SELECT, INSERT ON ctf2.transfers TO 'application'@'localhost';
 GRANT SELECT ON ctf2.balances TO 'application'@'localhost';
 
+-- change root password
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'hT2yX5yoHIIURD6DU6InYupXq3k90HcZ';
+
 FLUSH PRIVILEGES;
 
 
