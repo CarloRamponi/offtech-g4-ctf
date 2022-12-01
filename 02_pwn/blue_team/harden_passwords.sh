@@ -12,5 +12,3 @@ do
     echo "UPDATE users SET pass=\"$hashed_password\" WHERE user=@curr_user;" >> db_harden_passwords.sql
     ((counter++))
 done
-
-sudo mysql -u"root" -p"rootmysql" < db_harden_passwords.sql
